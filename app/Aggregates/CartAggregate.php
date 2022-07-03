@@ -12,7 +12,7 @@ use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 class CartAggregate extends AggregateRoot
 {
     public array $cart;
-    public array $removed_products;
+    public array $removed_products = [];
     public CustomerObject $customer;
     public bool $finished = false;
 
@@ -40,7 +40,7 @@ class CartAggregate extends AggregateRoot
 
     public function createOrder(CustomerObject $customer): static
     {
-        $this->recordThat(new OrderCreated($customer, $this->cart));
+        $this->recordThat(new OrderCreated($customer, $this->cart, $this->removed_products));
 
         return $this;
     }

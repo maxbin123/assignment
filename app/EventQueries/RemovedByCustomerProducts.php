@@ -22,10 +22,10 @@ class RemovedByCustomerProducts extends EventQuery
 
     protected function applyOrderCreated(OrderCreated $event)
     {
-        foreach ($event->products as $product) {
+        foreach ($event->removed_products as $product_id) {
             $this->removed_products[] =
                 [
-                    'product' => Product::find($product),
+                    'product' => Product::find($product_id),
                     'customer' => $event->customer
                 ];
         }

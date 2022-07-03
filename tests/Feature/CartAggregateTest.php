@@ -6,7 +6,6 @@ use App\Aggregates\CartAggregate;
 use App\EventQueries\RemovedByCustomerProducts;
 use App\EventQueries\RemovedProducts;
 use App\Models\Product;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class CartAggregateTest extends TestCase
@@ -130,20 +129,22 @@ class CartAggregateTest extends TestCase
     {
         [$product1, $product2] = Product::factory(2)->create();
 
+        $customer1 = $this->getCustomer();
         $cart = CartAggregate::retrieve($this->faker->uuid());
         $cart->addProduct($product1, 4)
             ->removeProduct($product1)
             ->addProduct($product1, 1)
-            ->createOrder($this->getCustomer())
+            ->createOrder($customer1)
             ->persist();
 
+        $customer2 = $this->getCustomer();
         $cart = CartAggregate::retrieve($this->faker->uuid());
         $cart->addProduct($product2, 4)
             ->removeProduct($product2)
             ->addProduct($product1, 4)
             ->removeProduct($product1)
             ->addProduct($product2, 1)
-            ->createOrder($this->getCustomer())
+            ->createOrder($customer2)
             ->persist();
 
         $cart = CartAggregate::retrieve($this->faker->uuid());
@@ -154,9 +155,9 @@ class CartAggregateTest extends TestCase
         $report = new RemovedProducts();
         $this->assertEquals([$product1->id => 2, $product2->id => 2], $report->getRemovedProducts());
 
-//        dd(DB::table('stored_events')->get());
         $report = new RemovedByCustomerProducts();
-        dd($report->getRemovedProducts());
-
+        $removed = $report->getRemovedProducts();
+        $this->assertEquals($product1->id, $removed[0]['product']->id);
+        $this->assertEquals($customer1->name, $removed[0]['customer']->name);
     }
 }

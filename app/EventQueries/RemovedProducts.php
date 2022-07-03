@@ -33,5 +33,4 @@ class RemovedProducts extends EventQuery
     {
         return $this->removed_products;
     }
-
 }
