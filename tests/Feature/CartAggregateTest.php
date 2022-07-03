@@ -17,7 +17,7 @@ class CartAggregateTest extends TestCase
 
         $cart->addProduct($product, 4);
 
-        $this->assertEquals([$product->id => 4], $cart->getCart());
+        $this->assertEquals([$product->id => 4], $cart->getCart()->toArray());
     }
 
     public function test_cart_add_same()
@@ -28,7 +28,7 @@ class CartAggregateTest extends TestCase
         $cart->addProduct($product, 2)
             ->addProduct($product, 4);
 
-        $this->assertEquals([$product->id => 6], $cart->getCart());
+        $this->assertEquals([$product->id => 6], $cart->getCart()->toArray());
     }
 
     public function test_cart_add_two()
@@ -39,7 +39,7 @@ class CartAggregateTest extends TestCase
         $cart->addProduct($product1, 2)
             ->addProduct($product2, 4);
 
-        $this->assertEquals([$product1->id => 2, $product2->id => 4], $cart->getCart());
+        $this->assertEquals([$product1->id => 2, $product2->id => 4], $cart->getCart()->toArray());
     }
 
     public function test_cart_add_and_remove()
@@ -50,7 +50,7 @@ class CartAggregateTest extends TestCase
         $cart->addProduct($product, 4)
             ->removeProduct($product);
 
-        $this->assertEquals([], $cart->getCart());
+        $this->assertEquals([], $cart->getCart()->toArray());
         $this->assertEquals([$product->id], $cart->getRemovedProducts());
     }
 
@@ -63,7 +63,7 @@ class CartAggregateTest extends TestCase
             ->addProduct($product2, 1)
             ->removeProduct($product1);
 
-        $this->assertEquals([$product2->id => 1], $cart->getCart());
+        $this->assertEquals([$product2->id => 1], $cart->getCart()->toArray());
         $this->assertEquals([$product1->id], $cart->getRemovedProducts());
     }
 
@@ -78,7 +78,7 @@ class CartAggregateTest extends TestCase
             ->removeProduct($product2)
             ->addProduct($product1, 1);
 
-        $this->assertEquals([$product1->id => 1], $cart->getCart());
+        $this->assertEquals([$product1->id => 1], $cart->getCart()->toArray());
         $this->assertEquals([$product1->id, $product2->id], $cart->getRemovedProducts());
     }
 
@@ -150,7 +150,7 @@ class CartAggregateTest extends TestCase
         $cart = CartAggregate::retrieve($this->faker->uuid());
         $cart->addProduct($product2, 4)
             ->removeProduct($product2)
-        ->persist();
+            ->persist();
 
         $report = new RemovedProducts();
         $this->assertEquals([$product1->id => 2, $product2->id => 2], $report->getRemovedProducts());

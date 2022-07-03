@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\StorableEvents\AddedToCart;
 use App\StorableEvents\OrderCreated;
 use App\StorableEvents\RemovedFromCart;
+use Illuminate\Support\Collection;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
 class CartAggregate extends AggregateRoot
@@ -69,9 +70,9 @@ class CartAggregate extends AggregateRoot
         $this->finished = true;
     }
 
-    public function getCart(): array
+    public function getCart(): Collection
     {
-        return $this->cart;
+        return collect($this->cart);
     }
 
     public function getRemovedProducts(): array

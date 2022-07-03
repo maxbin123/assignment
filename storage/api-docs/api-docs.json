@@ -1,0 +1,215 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Shopping Cart",
+        "description": "A shopping cart API",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/cart/{uuid}": {
+            "put": {
+                "tags": [
+                    "Cart"
+                ],
+                "description": "Add to cart",
+                "operationId": "addToCart",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/uuid"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AddToCartRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The cart",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CartTransformer"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Cart"
+                ],
+                "description": "Remove from cart",
+                "operationId": "removeFromCart",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/uuid"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RemoveFromCartRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The cart",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CartTransformer"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/order/{uuid}": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "description": "Generate order from cart",
+                "operationId": "placeOrder",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/uuid"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OrderRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The order",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AddToCartRequest": {
+                "properties": {
+                    "product_id": {
+                        "description": "The product ID",
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "quantity": {
+                        "description": "The quantity of the product",
+                        "type": "integer",
+                        "example": 2
+                    }
+                },
+                "type": "object"
+            },
+            "OrderRequest": {
+                "properties": {
+                    "email": {
+                        "description": "Customer email",
+                        "type": "string",
+                        "example": "mail@example.com"
+                    },
+                    "name": {
+                        "description": "Customer name",
+                        "type": "string",
+                        "example": "Mike Martin"
+                    },
+                    "address": {
+                        "description": "Customer address",
+                        "type": "string",
+                        "example": "Lovely str. 34, Hampton, 323005"
+                    },
+                    "phone": {
+                        "description": "Customer phone",
+                        "type": "string",
+                        "example": "234-505-2334"
+                    }
+                },
+                "type": "object"
+            },
+            "RemoveFromCartRequest": {
+                "properties": {
+                    "product_id": {
+                        "description": "The product ID",
+                        "type": "integer",
+                        "example": 5
+                    }
+                },
+                "type": "object"
+            },
+            "CartTransformer": {
+                "properties": {
+                    "product_id": {
+                        "description": "The product ID",
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "quantity": {
+                        "description": "The quantity of the product",
+                        "type": "integer",
+                        "example": 2
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "parameters": {
+            "uuid": {
+                "name": "uuid",
+                "in": "path",
+                "description": "The cart's UUID",
+                "schema": {
+                    "schema": "uuid",
+                    "type": "string",
+                    "example": "12345678-1234-1234-1234-123456789012"
+                }
+            }
+        }
+    }
+}

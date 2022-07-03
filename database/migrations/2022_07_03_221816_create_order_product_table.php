@@ -15,8 +15,6 @@ return new class extends Migration {
             $table->foreignIdFor(Order::class);
             $table->foreignIdFor(Product::class);
             $table->integer('quantity');
-
-            $table->timestamps();
         });
     }
 

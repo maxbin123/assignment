@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +16,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::prefix('cart')->group(function () {
+    Route::put('{uuid}', [CartController::class, 'add'])->name('cart.add');
+    Route::delete('{uuid}', [CartController::class, 'remove'])->name('cart.remove');
 });
+
+Route::post('order/{uuid}', OrderController::class)->name('order.place');
+
