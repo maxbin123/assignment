@@ -3,7 +3,10 @@
 namespace Tests\Feature;
 
 use App\Aggregates\CartAggregate;
+use App\EventQueries\RemovedByCustomerProducts;
+use App\EventQueries\RemovedProducts;
 use App\Models\Product;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class CartAggregateTest extends TestCase
@@ -23,8 +26,8 @@ class CartAggregateTest extends TestCase
         $product = Product::factory()->create();
         $cart = CartAggregate::retrieve($this->faker->uuid());
 
-        $cart->addProduct($product, 2);
-        $cart->addProduct($product, 4);
+        $cart->addProduct($product, 2)
+            ->addProduct($product, 4);
 
         $this->assertEquals([$product->id => 6], $cart->getCart());
     }
@@ -34,8 +37,8 @@ class CartAggregateTest extends TestCase
         [$product1, $product2] = Product::factory(2)->create();
         $cart = CartAggregate::retrieve($this->faker->uuid());
 
-        $cart->addProduct($product1, 2);
-        $cart->addProduct($product2, 4);
+        $cart->addProduct($product1, 2)
+            ->addProduct($product2, 4);
 
         $this->assertEquals([$product1->id => 2, $product2->id => 4], $cart->getCart());
     }
@@ -45,8 +48,8 @@ class CartAggregateTest extends TestCase
         $product = Product::factory()->create();
         $cart = CartAggregate::retrieve($this->faker->uuid());
 
-        $cart->addProduct($product, 4);
-        $cart->removeProduct($product);
+        $cart->addProduct($product, 4)
+            ->removeProduct($product);
 
         $this->assertEquals([], $cart->getCart());
         $this->assertEquals([$product->id], $cart->getRemovedProducts());
@@ -57,9 +60,9 @@ class CartAggregateTest extends TestCase
         [$product1, $product2] = Product::factory(2)->create();
         $cart = CartAggregate::retrieve($this->faker->uuid());
 
-        $cart->addProduct($product1, 4);
-        $cart->addProduct($product2, 1);
-        $cart->removeProduct($product1);
+        $cart->addProduct($product1, 4)
+            ->addProduct($product2, 1)
+            ->removeProduct($product1);
 
         $this->assertEquals([$product2->id => 1], $cart->getCart());
         $this->assertEquals([$product1->id], $cart->getRemovedProducts());
@@ -70,11 +73,11 @@ class CartAggregateTest extends TestCase
         [$product1, $product2] = Product::factory(2)->create();
         $cart = CartAggregate::retrieve($this->faker->uuid());
 
-        $cart->addProduct($product1, 4);
-        $cart->addProduct($product2, 1);
-        $cart->removeProduct($product1);
-        $cart->removeProduct($product2);
-        $cart->addProduct($product1, 1);
+        $cart->addProduct($product1, 4)
+            ->addProduct($product2, 1)
+            ->removeProduct($product1)
+            ->removeProduct($product2)
+            ->addProduct($product1, 1);
 
         $this->assertEquals([$product1->id => 1], $cart->getCart());
         $this->assertEquals([$product1->id, $product2->id], $cart->getRemovedProducts());
@@ -86,8 +89,8 @@ class CartAggregateTest extends TestCase
         $cart = CartAggregate::retrieve($this->faker->uuid());
 
         $customer = $this->getCustomer();
-        $cart->addProduct($product, 4);
-        $cart->createOrder($customer);
+        $cart->addProduct($product, 4)
+            ->createOrder($customer);
 
         $this->assertEquals($customer, $cart->getCustomer());
     }
@@ -100,9 +103,9 @@ class CartAggregateTest extends TestCase
         $this->expectExceptionMessage('This order already finished, reset the UUID');
 
         $customer = $this->getCustomer();
-        $cart->addProduct($product, 4);
-        $cart->createOrder($customer);
-        $cart->addProduct($product, 1);
+        $cart->addProduct($product, 4)
+            ->createOrder($customer)
+            ->addProduct($product, 1);
     }
 
     public function test_order_projector()
@@ -111,8 +114,9 @@ class CartAggregateTest extends TestCase
         $cart = CartAggregate::retrieve($this->faker->uuid());
 
         $customer = $this->getCustomer();
-        $cart->addProduct($product, 4);
-        $cart->createOrder($customer)->persist();
+        $cart->addProduct($product, 4)
+            ->createOrder($customer)
+            ->persist();
 
         $this->assertDatabaseCount('order_product', 1);
         $this->assertDatabaseCount('orders', 1);
@@ -120,5 +124,39 @@ class CartAggregateTest extends TestCase
             'name' => $customer->name,
             'email' => $customer->email,
         ]);
+    }
+
+    public function test_removed_products_query_works()
+    {
+        [$product1, $product2] = Product::factory(2)->create();
+
+        $cart = CartAggregate::retrieve($this->faker->uuid());
+        $cart->addProduct($product1, 4)
+            ->removeProduct($product1)
+            ->addProduct($product1, 1)
+            ->createOrder($this->getCustomer())
+            ->persist();
+
+        $cart = CartAggregate::retrieve($this->faker->uuid());
+        $cart->addProduct($product2, 4)
+            ->removeProduct($product2)
+            ->addProduct($product1, 4)
+            ->removeProduct($product1)
+            ->addProduct($product2, 1)
+            ->createOrder($this->getCustomer())
+            ->persist();
+
+        $cart = CartAggregate::retrieve($this->faker->uuid());
+        $cart->addProduct($product2, 4)
+            ->removeProduct($product2)
+        ->persist();
+
+        $report = new RemovedProducts();
+        $this->assertEquals([$product1->id => 2, $product2->id => 2], $report->getRemovedProducts());
+
+//        dd(DB::table('stored_events')->get());
+        $report = new RemovedByCustomerProducts();
+        dd($report->getRemovedProducts());
+
     }
 }

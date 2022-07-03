@@ -6,8 +6,8 @@ use Spatie\DataTransferObject\DataTransferObject;
 
 class CustomerObject extends DataTransferObject
 {
-    public string $name;
-    public string $email;
-    public string $address;
-    public string $phone;
+    public ?string $name;
+    public ?string $email;
+    public ?string $address;
+    public ?string $phone;
 }
