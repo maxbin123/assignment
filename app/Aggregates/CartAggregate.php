@@ -11,10 +11,17 @@ use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
 class CartAggregate extends AggregateRoot
 {
-    private array $cart;
+    public array $cart;
+    public array $removed_products;
+    public CustomerObject $customer;
+    public bool $finished = false;
 
     public function addProduct(Product $product, int $quantity): static
     {
+        if ($this->finished) {
+            throw new \Exception('This order already finished, reset the UUID');
+        }
+
         $this->recordThat(new AddedToCart($product, $quantity));
 
         return $this;
@@ -22,6 +29,10 @@ class CartAggregate extends AggregateRoot
 
     public function removeProduct(Product $product): static
     {
+        if ($this->finished) {
+            throw new \Exception('This order already finished, reset the UUID');
+        }
+
         $this->recordThat(new RemovedFromCart($product));
 
         return $this;
@@ -48,10 +59,28 @@ class CartAggregate extends AggregateRoot
         if (isset($this->cart[$event->product->id])) {
             unset($this->cart[$event->product->id]);
         }
+
+        $this->removed_products[] = $event->product->id;
+    }
+
+    public function applyOrderCreater(OrderCreated $event)
+    {
+        $this->customer = $event->customer;
+        $this->finished = true;
     }
 
     public function getCart(): array
     {
         return $this->cart;
+    }
+
+    public function getRemovedProducts(): array
+    {
+        return $this->removed_products;
+    }
+
+    public function getCustomer()
+    {
+        return $this->customer;
     }
 }
