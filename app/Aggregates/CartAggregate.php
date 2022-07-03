@@ -40,7 +40,7 @@ class CartAggregate extends AggregateRoot
 
     public function createOrder(CustomerObject $customer): static
     {
-        $this->recordThat(new OrderCreated($customer));
+        $this->recordThat(new OrderCreated($customer, $this->cart));
 
         return $this;
     }

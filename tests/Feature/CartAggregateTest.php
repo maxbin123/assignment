@@ -104,4 +104,21 @@ class CartAggregateTest extends TestCase
         $cart->createOrder($customer);
         $cart->addProduct($product, 1);
     }
+
+    public function test_order_projector()
+    {
+        $product = Product::factory()->create();
+        $cart = CartAggregate::retrieve($this->faker->uuid());
+
+        $customer = $this->getCustomer();
+        $cart->addProduct($product, 4);
+        $cart->createOrder($customer)->persist();
+
+        $this->assertDatabaseCount('order_product', 1);
+        $this->assertDatabaseCount('orders', 1);
+        $this->assertDatabaseHas('orders', [
+            'name' => $customer->name,
+            'email' => $customer->email,
+        ]);
+    }
 }
