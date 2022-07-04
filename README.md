@@ -18,5 +18,7 @@ Because of nature of problem I decided to go with Event Sourcing pattern & apply
 So whole cart became an AggregateRoot, and on when order placed the Projector stores it to DB. 
 Reports are based on EventQueries.
 
+Also, for app/cart state storing I decided to use UUID, which could be generated in client or on some endpoint.
+
 ### Testing
 - `php artisan test`
