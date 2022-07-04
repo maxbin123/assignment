@@ -1,13 +1,22 @@
-# Technical assignment back-end engineer
+### Getting started
 
-As part of an engineering team, you are working on an online shopping platform. The sales team wants to know which items were added to a basket, but removed before checkout. They will use this data later for targeted discounts.
+- Clone the repo
+- copy `env.example` to `.env`
+- set the `DB_` environment variables in `.env` to your liking
+- create a database with the name specified in `DB_DATABASE`
+- `composer install`
+- migrate and seed products form json with `php artisan migrate:fresh --seed`
+- `php artisan l5-swagger:generate` to get Swagger on `/api/documentation/`
 
-Using the agreed upon programming language, build a solution that solves the above problem.
+### About
+As in description we need to have to track products removed from cart for sales. 
+It will be two variants, if order was completed or cart was abandoned. 
+In first case we have customer's info for sales, in second not, but decided to track them also for "most removed products" report.
 
-**Scope**
+Because of nature of problem I decided to go with Event Sourcing pattern & apply well-known [spatie/laravel-event-sourcing](https://github.com/spatie/laravel-event-sourcing) package on top of Laravel.
 
-* Focus on the JSON API, not on the look and feel of the application.
+So whole cart became an AggregateRoot, and on when order placed the Projector stores it to DB. 
+Reports are based on EventQueries.
 
-**Timing**
-
-You have one week to accomplish the assignment. You decide yourself how much time and effort you invest in it, but one of our colleagues tends to say: "Make sure it is good" ;-). Please send us an email (jobs@madewithlove.com) when you think the assignment is ready for review. Please mention your name, Github username, and a link to what we need to review.
+### Testing
+- `php artisan test`
