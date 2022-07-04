@@ -153,7 +153,7 @@ class CartAggregateTest extends TestCase
             ->persist();
 
         $report = new RemovedProducts();
-        $this->assertEquals([$product1->id => 2, $product2->id => 2], $report->getRemovedProducts());
+        $this->assertEquals([$product1->id => 2, $product2->id => 2], $report->getRemovedProducts()->toArray());
 
         $report = new RemovedByCustomerProducts();
         $removed = $report->getRemovedProducts();

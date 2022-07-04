@@ -129,6 +129,34 @@
                     }
                 }
             }
+        },
+        "/api/reports/removed": {
+            "get": {
+                "tags": [
+                    "Reports"
+                ],
+                "description": "Get all removed from cart products",
+                "operationId": "removedReport",
+                "responses": {
+                    "200": {
+                        "description": "A list of products"
+                    }
+                }
+            }
+        },
+        "/api/reports/removed-by-customer": {
+            "get": {
+                "tags": [
+                    "Reports"
+                ],
+                "description": "Get all removed from cart products with customer data",
+                "operationId": "removedByCustomerReport",
+                "responses": {
+                    "200": {
+                        "description": "A list of customers with products"
+                    }
+                }
+            }
         }
     },
     "components": {

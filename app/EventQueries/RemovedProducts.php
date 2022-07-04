@@ -31,6 +31,6 @@ class RemovedProducts extends EventQuery
 
     public function getRemovedProducts()
     {
-        return $this->removed_products;
+        return collect($this->removed_products);
     }
 }

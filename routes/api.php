@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,3 +23,7 @@ Route::prefix('cart')->group(function () {
 
 Route::post('order/{uuid}', OrderController::class)->name('order.place');
 
+Route::prefix('reports')->group(function () {
+    Route::get('removed', [ReportController::class, 'removed'])->name('report.removed');
+    Route::get('removed-by-customer', [ReportController::class, 'removedByCustomer'])->name('report.removed-by-customer');
+});
